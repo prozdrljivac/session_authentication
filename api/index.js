@@ -1,16 +1,23 @@
 const bcrypt = require("bcrypt");
 const express = require("express");
 const session = require("express-session");
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 const authRoutes = require("./routes/auth");
+const sequelize = require("./utils/database");
 const User = require("./models/user");
 
 const app = express();
 
-// TODO Save session to the DB
 app.use(
   session({
     secret: process.env.SECRET_KEY,
+    store: new SequelizeStore({
+      db: sequelize,
+      expiration: 60 * 60 * 1000,
+      checkExpirationInterval: 15 * 60 * 1000,
+      tableName: "sessions",
+    }),
     resave: false,
     saveUninitialized: false,
   })
@@ -27,18 +34,19 @@ app.use((req, res, next) => {
 
 app.use(authRoutes);
 
-User.sync()
+sequelize
+  .sync()
   .then(() => {
-    return bcrypt.hash(process.env.USER_EMAIL, 12);
+    return bcrypt.hash(process.env.USER_PW, 12);
   })
   .then((hashedPassword) => {
-    return User.findOne({ where: { email: process.env.USER_PW } })
+    return User.findOne({ where: { email: process.env.USER_EMAIL } })
       .then((user) => {
         if (user) {
           return user;
         }
         return User.create({
-          email: process.env.USER_PW,
+          email: process.env.USER_EMAIL,
           password: hashedPassword,
         });
       })

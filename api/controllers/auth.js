@@ -11,6 +11,12 @@ exports.login = async (req, res, next) => {
     },
   });
 
+  if (!user) {
+    return res
+      .status(404)
+      .json({ message: "Please provide valid credentials" });
+  }
+
   const isCredentialsValid = await bcrypt.compare(password, user.password);
 
   if (isCredentialsValid) {
