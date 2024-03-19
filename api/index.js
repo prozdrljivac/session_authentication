@@ -7,6 +7,7 @@ const User = require("./models/user");
 
 const app = express();
 
+// TODO Save session to the DB
 app.use(
   session({
     secret: process.env.SECRET_KEY,
