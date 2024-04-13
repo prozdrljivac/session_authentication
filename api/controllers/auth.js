@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
+const db = require("../models");
 
-const User = require("../models/user");
+const User = require("../models/user")(db.sequelize, db.Sequelize.DataTypes);
 
 exports.login = async (req, res, next) => {
   const { email, password } = req.body;
@@ -10,17 +11,15 @@ exports.login = async (req, res, next) => {
       email: email,
     },
   });
-
   if (!user) {
-    return res
-      .status(404)
-      .json({ message: "Please provide valid credentials" });
+    return res.status(401).json({ message: "Unauthenticated" });
   }
 
   const isCredentialsValid = await bcrypt.compare(password, user.password);
-
-  if (isCredentialsValid) {
-    req.session.userId = user.id;
-    return res.status(200).json({ message: "Login successful" });
+  if (!isCredentialsValid) {
+    return res.status(401).json({ message: "Unauthenticated" });
   }
+
+  req.session.userId = user.id;
+  return res.status(200).json({ message: "Authenticated" });
 };
