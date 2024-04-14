@@ -1,6 +1,5 @@
-// Add app routing
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-// Add login page
+import { HomePage, LoginPage } from "./pages";
 // Add home page
 // Add interceptor
 import React from "react";
@@ -8,8 +7,8 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 
 const router = createBrowserRouter([
-  { path: "/", element: <h1>Hello World</h1> },
-  { path: "/login", element: <h1>Login Page</h1> },
+  { path: "/", element: <HomePage /> },
+  { path: "/login", element: <LoginPage /> },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
